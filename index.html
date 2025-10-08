@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Geodesic dome calculator - Acidome.ru</title>
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="css/acidome.css">
+</head>
+	<body class="offline" style="height: 6000px"><!-- scrollsaver -->
+		<!-- params & view -->
+		<div class="geodesic">
+			<!-- viewport -->
+			<canvas class="preview"></canvas>
+
+			<!-- copyleft -->
+			<div class="copyleft" style="display: none" data-bind="visible: IS_IFRAME">
+				2011-<span data-bind="text: (new Date).getFullYear()"></span>
+				<a href target="_blank" data-bind="attr: { href: '//acidome.ru/lab/calc' + location.hash }">Acidome.ru/lab/calc</a>
+				&rarr;
+			</div>
+
+			<!-- header -->
+			<div class="head" data-bind="visible: detailList() && !IS_IFRAME">
+				<div class="title transparent">
+					<span class="acidome-logo" title="Acidome is the geodesic dome calculator">
+						<span class="acidome-logo__acid">Acid</span>
+						<span class="acidome-logo__o"></span>
+						<span class="acidome-logo__me">me</span>
+					</span>
+
+					<h1 data-bind="text: 'title:Geodesic dome constructor'">Geodesic dome calculator</h1>
+
+					<!--sup class="version" data-bind="text: IS_OFFLINE ? 'offline' : null"></sup-->
+
+					<select id="lang-select" class="lang-select" style="display: none" data-bind="
+						options: i18n.langOptions(),
+						optionsValue: 'id',
+						optionsText: 'name',
+						value: i18n.lang,
+						event: { change: $.proxy(console, 'log') },
+						visible: true
+					"></select>
+				</div>
+
+				<!-- right side -->
+				<div class="welcome transparent" data-bind="css: 'welcome_show'">
+					<!-- Donation link & popup
+					  -->
+					<div class="welcome__row" style="display:none;">
+						<!--span data-bind="style: { color: 'lightgray' }">&larr;</span-->
+						
+						<a target="_blank" href="https://www.facebook.com/groups/acidome.calc/permalink/3170155026372549/" data-bind="
+							__text: 'Acidome.Pro coming soon',
+							__text: 'Donate for Acidome',
+							attr: {
+								href: 'https:' + i18n('//www.facebook.com/groups/acidome.calc/permalink/3170155026372549/')
+							}
+						"><strong>Acidome.Pro</strong> coming soon</a>
+						&rarr;
+					</div>
+					
+					<div class="welcome__row" data-bind="style: { overflowY: 'visible' }">
+						<a class="donation-link" target="_blank"  style="display:none;" href="https://paypal.me/popitch">Donate to access <strong>Acidome.Pro</strong></a>
+
+						
+						<!--span class="acidome-logo__o">☺</span-->
+						<!--span data-bind="style: { color: 'lightgray' }">&larr;</span-->
+						<!--span style="font-size: .7em; ">
+							<span class="acidome-logo__o"></span>
+						</span-->
+						
+						<div class="donation__popup">
+							<dl>
+								<dt class="paypal" title="PayPal donation">
+									<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
+										<input type="hidden" name="cmd" value="_s-xclick">
+										<input type="hidden" name="hosted_button_id" value="XSULWE6C9RHZJ">
+										<input type="image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC8AAAAVCAYAAADWxrdnAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABWFJREFUeNrsVwlsVFUUPX86e2famcJM6crUUhtLKbZFYpGCMICEBgImQsCQGAiIERRQohIMiaKJmhpFISoGEha1CbKYWBWNDZvYUkqhLQNdoO1Mp6XrLJ19ed7/Ck201YQ0MTH2JW+Sn//ufeedc+59fwTGGP6rQ4L/8BgHPw7+/wZeKv5cs9jYo698AfgDQDQ69Earwdr8bLz7wiKkJiUIY9nk1a/qWGmVFRCzRKm7KaQoMGrx3nwTFhQk/2PuHoeXJe+vRtgfRsvzhWjr9VK4BAPe0BDzF6/eATweQCbD3KlTMD0zHfD6cOSXS9ixt3w4kcPpYXd7nMzp8gz3V78/wLxe/5/6bTAYYoMeH59+f5CVNvUBkQgQp8LiKROJMglqWvuw8Ng1NNucPNZHeQZcPj79geBwvhvtLoTtDk6qXiuHUiaBQh4DOeXgzF+yECvhCGaZkvHzR+t4kPnlgzhfdxMtd/tR09DO5u8pg9PhHlJGqcCSzBT26dal2FR6GmfaunBy8zK2fEEeZ3HDnm9xuMaCF4vysHPjU4DbT6wLuPDMI5iZPQFVjf2YfeAKEIqgs9+LE9Vd7LXKdnqODhmZDlk2dzJbWTxZqG1zAnQXmQ0a6ONUQuEUKRMVlMtkAmf+3J1Ontw8LYMD7+h04nzPALEVxbRUI240dyNXp8GukiJsW/gYHTSE8t9rcej0ZUjES66zC2erW3jswROV7HBFFVdu7ZJ81FldJE+QACmRkx7P19RZ75FA7KmVMly968b23ETsM2diUaoO6HJi1fe34PEFWKWd1tIW89KGYuVymSAC556/0WRn7SJQssy+i/W4cMuGihZSwkknNhqw7dliZD9kxIzcFNy83QNbjxNyTSyCrkEkGeJQSOB/vFKPpu4BBEMhtuObCs7UujmFKMhNwxtlFk4MAhFsPFaP6+4AGq1kAxbFrsczkJcRj32JObD2+tDR70O+Q40zzbReIUMgGMHXXQReGoNZmbqRBVtrsVNiKtSYGPT3OVAxQExpY7GRJN+9wQyn24fpG/bDYiV1lHJApQLENXIFivMzUGPpIKklaOpzYefH5ejv7AYm6PHWpkV8gxM25xB4suXxxh4iKQZT0/TYU5yGkhlJ+PxMK7acu02FQjWhVfJ1ItPrSSW3N0x7+XiBZyVpRoKvtNjIayEkJRlx+cP1ZGcZ1Go5VEoFl2bFrqPMcqsZW1eY8f62EvxW04onXz9ANtAgy2SAQ/QzHaTR3oNSezcHWvr0HKRM0gudvYPsDnlaVOLIshwsnZEo4oJOq+K5z17vYlt+uMlB395RhFSDCiu/rMWpejvmZyagwUYkhcOIN+qQatSO6ErSXxuo00TCWJyVhpS/tESX28uqREtJZeh0DOLgycv44LtLxFIAc5JMUCjkQlpiPOOK+II8T0GWCZvXPMHjLaLfvUHO3OxsPeLvgb4/Wrqow0WJaYmA6pYBHLpoxSlRHVIyb3IcyipJ1XAUqydpR7+knFSUSE7G8rm5I17GadXCm2KBqmMpUQM++6kGpoQ4QJ+A5UU5fE2iQUugtNzDkErxznMLcb+g7A6yI6m46mEDTMnxI5hbMN1Ie+upTQexsrwRHW46qE6N3PQEmIxq9Poj/HnJ1ImjghfEHi1+FqvVyr+9LFqtvSxC3SF1ko5kZ+SyCLEu4yA9Hj8zrNsLX4cda+fNxOG31wznEft1KMzI5gKUSvmo+d0U3+sMQqeR8VY46A2wGOqBom3FOyJC2GJVitGxicDHMvcePcdQvJ2hZDdrbutmY833IHNM3zYDjkH20vGzpJ8En6w2IzPdIPyb3zbC+D+pcfAPPv4QYADNfs6Oc0aWEAAAAABJRU5ErkJggg==" 
+											border="0" name="submit" alt="PayPal – The safer, easier way to pay online."
+											style="width: 100%" />
+									</form>
+								</dt>
+								<dd>
+									You will be aware of the project news, 
+									as well as the future Acidome calculator features 
+									that will be linked with the email address of your PayPal account.
+									<br/ >
+									Donate for future features <span style="font-family: Tahoma,Verdana,Arial,sans-serif;">☺</span>
+								</dd>
+							</dl>
+
+							<!-- __ko if: i18n.lang() === 'ru' -->
+							<dl title="Yandex.Money">
+								<dt>
+									<a target="_blank" href="https://money.yandex.ru/to/41001351235394">Yandex.Money</a>&nbsp;&rarr;
+								</dt>
+								<dd>
+									<div class="donation__data">
+										<iframe src="https://money.yandex.ru/quickpay/shop-widget?writer=seller&targets=Acidome%20Calculator%20Development&targets-hint=&default-sum=500&button-text=14&payment-type-choice=on&mobile-payment-type-choice=on&hint=&successURL=&quickpay=shop&account=41001351235394" width="100%" height="220" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+									</div>
+								</dd>
+							</dl>
+							<!-- __/ko -->
+
+							<dl title="Bitcoin wallet">
+								<dt>Bitcoin</dt>
+								<dd>
+									<input type="text" value="34Gvq7dUmJeek3ZpWEPuG7uCWygmoBW4Dg" style="width: 24em;" readonly onclick="this.select(); execCommand('copy');" />
+									<!-- agph from 11.05.20 to +7 month 34Gvq7dUmJeek3ZpWEPuG7uCWygmoBW4Dg -->
+								</dd>
+							</dl>
+
+							<dl title="Ethereum wallet">
+								<dt>Ethereum</dt>
+								<dd>
+									<input type="text" value="0x81739f8aAf02aC0F61f519dB8D0511035E2AbF53" style="width: 24em;" readonly onclick="this.select(); execCommand('copy');" />
+								</dd>
+							</dl>
+						</div>
+					</div>
+					
+					<div class="welcome__row" data-bind="if: true">
+						<a class="facebook-group" href="https://www.facebook.com/groups/136778896376859/" target="_blank" title="Acidome Facebook group"
+							__data-bind="text: 'Facebook group'">Facebook</a>
+
+						<a class="blog-link" href="https://blog.acidome.com/" target="_blank" title="Acidome blog"
+							__data-bind="text: 'Blog'">Blog</a>
+					</div>
+					
+					<div class="welcome__row" data-bind="if: false">
+						<!-- ko ifnot: i18n.lang() == 'ru' -->
+						<a class="sample-to-use" href="//northernhomestead.com/how-to-build-a-geodome-greenhouse/" target="_blank" 
+								data-bind="text: 'How to use calc'">How to use calc</a> &rarr;
+						<!-- /ko -->
+
+						<!-- ko if: i18n.lang() == 'ru' -->
+						<a class="sample-to-use" href="//dompodrobno.ru/instrukciya_kalkulyator_kupolnyi/" target="_blank">Как пользоваться</a>
+						&rarr;
+						<!-- /ko -->
+					</div>
+
+					<!--
+					<div class="welcome__row">
+						<a class="help-to-translate" href="https://www.facebook.com/groups/acidome.calc/permalink/753359898052086/" target="_blank"
+								data-bind="text: 'Translate me'">Translate me</a>
+						&rarr;
+					</div>
+					
+					<div class="welcome__row">
+						<div class="share">
+							<!-- //jsfiddle.net/ostrio/MVDh6/6/ --><!--
+							<a class="share-btn" target="_blank" title="Facebook" href data-bind=" attr: {
+								href: '//www.facebook.com/sharer.php?u=' + encodeURIComponent(form.figureUrl()) + '&t=' + encodeURIComponent(form.figureName())
+							}">
+								<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QTZFREVBOTAxODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QTZFREVBOTExODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBNkVERUE4RTE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBNkVERUE4RjE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PpH2LXcAAAGmSURBVHjapFJNKERRFP7eu2/e84zI+ElJKYrJAitJSVKzkJ9IFrZ2VjZKbC0UWQsLO1nZSX7KYnaS1VB+EhtFz88Y7z3zfpx7Mat5MzSnzrvvnnvPd77z3SN1jW+sARjGtynIYb4vvuJfkiSPlkOeMIk/mGk78D0fiiLDo1UNMTBZGlP+mtzWXIORWBSV5Tos28Xq1gkubw3kBbA/HbQ0VmFlLobSEi0T3zm4QOLqKT+A43gY6G0SyRYxOTt/gGk5eDI+EKJ28oomyzKqIrrY78dvMLt8AI3611QFRRqDHJhMnjLTSKZspB1PxB6NFN5p77h+pkBWBh6dqApDf08jqc5QW1Mq4tGGSkwMtQoG8dN7vCWtAAB6Jo3ozU91Q9dCmXhne53wtONidGobLn/WbAA0JHCJZuLyEZEyHdUVYYSLVbxQxecXE9d3zzBeTSgsQEQaEKH49MIePaOLxZk+9HTUY/f4CkvrcRTrKvXvk8BSsIjcuHgcgLf03Zon5sJ1PcGSW04AXoExCT93RRIj2jyeuYMCrWAALuIm+eCvfv/MP/oSYAC/DZ1HI56fOwAAAABJRU5ErkJggg==" />
+							</a>
+
+							<a class="share-btn" target="_blank" title="Twitter" href data-bind=" attr: {
+								href: '//twitter.com/share?url=' + encodeURIComponent(form.figureUrl()) + '&text=' + encodeURIComponent(form.figureName() + ' | acidome.ru')
+							}">
+								<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QzA5RkVFNjkxODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QzA5RkVFNkExODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBNkVERUE5MjE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpDMDlGRUU2ODE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PiemuFcAAAC6UExURQCs7QCs7QCs7QCs7QCs7QCs7QCs7QCs7QCs7QCh6wCm7ACn7ACo7ACp7ACp7QCq7ACq7QCr7QCs7QGs7QKq7AKq7QOr7Qis7Qmu7Qqu7RKx7hSv7hax7hey7ii48Cy58D698UXB8VDE8lHF8lHF81TG83PQ9XfR9X/U9n/V9oLV9orY94vY94zX94/Z95rd+Kzj+azk+bbm+rfn+sPr+83v+87v/NPx/Nfy/Nvz/OD1/ej4/fP7/v///zDzFH4AAAAJdFJOU5abr7Tp7e7v8TlIFh4AAACMSURBVBgZBcHbSsNAFADAOXsJjfoQQxUE///nCgFTizSbZJ0JRQag7zEDABIAHSTYO32r24Y80qejxfB1vYxa5JH9++24f3zW1/poUdD/ri/zgHW5KJCUCY4gIe4HOJ+FhLqsHW5LJiHefzf8LAMKzjKl7bneSiBmnEPuj14DCqTWVEABAUBEkQHQ/gFK1TB99kc61wAAAABJRU5ErkJggg==" />
+							</a>
+
+							<a class="share-btn" target="_blank" title="Google Plus" href data-bind=" attr: {
+								href: 'https://plusone.google.com/_/+1/confirm?hl=en&url=' + encodeURIComponent(form.figureUrl())
+							}">
+								<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QzA5RkVFNzExODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QzA5RkVFNzIxODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpDMDlGRUU2RjE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpDMDlGRUU3MDE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PlHKW2sAAAKTSURBVHjabFNNSFRRFP7ufe85M6Zm/mulNpVKRi0qyKCkZW1CREzDioqEIIiWrYIgqKBWrYuoRVCQmwgiI/oh0NQsTJjJoVLHH0ZpdH6c9969nfteM85kB87innvud893znfYRHvrDYD1wDUfucQaUyGWHWB/gwMseGSfhJQ5VzKVgrRtSCEAYQO6Ae7xgnGOnFwyXaoXbBVdrCTAav3w7NiNvJrNzp0VmUdq8APEzBSg6TkAXEpVgOsimYCx5wAqei9DBsbAwpOo6j4Lz4ZS2NO/IBlHdr5yF4BKVS6kQEnHSYjJn4gPD2DhyUNEXz1HQUsriBDl2LDpE0l5uQAZJ05eH4w6P6SuQ5gpJCYCYPRQmha1w4a2tcnpj7AtF0Co0hV35ZS48PgefE07UdjWDWxpgFa9EbN3b1L5DNzfiMrzl8AoLrnmAOZUwDw+RN+8ROhCNzSvFw0P+pAYG8Xiiz7oFdUo7+hB/rZGlHeeglZcCmFZBCBW+SiOFgVj4Sn8/jICGhrKuqiJ+1uR/BFC+M41LL3vR/jWVaRmp2kiGtjo4V0ZHdjEq+hYF/Jr6xEf+gi5vIyqcxdhbKpHsLcT1sw0tMIiZ1rp0evO+OIx51B4tB01x0/j+5k2mAsRp6rY50Fsv/8MBXtbEHn6iLhzEpSWEawuhXSaocxbVQ2jpAyW7oFtmmCGAYsoxkNBJAPjjiLBXS2kBc+GDzVLabkA2vpi1F25Dl5ahsW3/TAjc9CpWWbwG6LvXoNTY/81NnSwOSNuSb8qZa+jMRrllbCWl5AMBWDOz4GRPhhja1ZM52p86TiVTGJA4usIEmqRFF8jD4YvP+tJ7krq48nkbS5xImudhYPINDd/JYX/WPrLT38EGAA8kFoJbGb//AAAAABJRU5ErkJggg==" />
+							</a>
+
+							<a class="share-btn" target="_blank" title="LinkedIn" href data-bind=" attr: {
+								href: '//www.linkedin.com/shareArticle?mini=true&url=' + encodeURIComponent(form.figureUrl())
+							}">
+								<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QzA5RkVFNkQxODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QzA5RkVFNkUxODJEMTFFMzkzM0E4RkVFOTc5OEYzOUQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpDMDlGRUU2QjE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpDMDlGRUU2QzE4MkQxMUUzOTMzQThGRUU5Nzk4RjM5RCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Po54gukAAAIDSURBVHjajFNLSxxBEP5muufhjLuSLGo2qBgPCQjBQzyI3j2Id3MKMXjJJepRPOVijhpYvOQXiAQCYnKSQA4+IJeITxCyG0GNGpD1tePszFg1s7vuGsRtqG6quru6vu+rVjD+dQrASwQwQBMUBVWMoLAuSZqG4ZMfkKl02fMBoaLK0afyRUsTmOxvx9yrTrQ3xIC8X20CqHy4IxnHSM8T9D9rwOsXTcCVV3UCyeVu/c1iZnUPbQ8tfF47ADT1pgqGw7CK0GQlPIVIDBhG0jZg6wK/Ty6hEBeNth5Ss09+W8JCS9xEOptD+vicHhBlFVDmx7S5MNSFxlodb2Z/YfPwFD/e9iBHVXxZP8BgZzNilPzfhYuxb1v4tJIBdFHggKskexTT8aBGgykF+QrqbQ0tdSbedbfi6DRHtPhIWBre9z5FfZwU94LQ1KKorhdJ6xOccv/D9x08n1jA6NxG6CdjBloTdomXOwVXCg01v32Ii6s8lv+cwPWjpBaTGUS9c2/HMKHMvhRKqf+Cij64L8Gt9f9GQtTBcUOGAY1eElS+pkZXpBq9LGjlvVKsJCMdzro+Pi6mUWdKbJLOx46L1HImPLibdULJ9s4cpJYyIZRd6ofif4kaiYeTj8Cxvkwg+xzQqTJ+mQl0vJtYsUKyabIBGFKrAGfKys/LSctjJCLZz2sBBgATpK1IbdAo2wAAAABJRU5ErkJggg==" />
+							</a>
+
+							<a class="share-btn" target="_blank" title="VK.com" href data-bind=" attr: {
+								href: '//vk.com/share.php?url=' + encodeURIComponent(form.figureUrl()) + '&title=' + encodeURIComponent(form.figureName() + ' | acidome.ru') + '&description=&image='
+							}">
+								<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OEFBRDg3REE2NERBMTFFMzk5MTlCRUE2RDEyNDhFN0IiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OEFBRDg3REI2NERBMTFFMzk5MTlCRUE2RDEyNDhFN0IiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDoyNjM2RTczNTY0OUIxMUUzOTkxOUJFQTZEMTI0OEU3QiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDoyNjM2RTczNjY0OUIxMUUzOTkxOUJFQTZEMTI0OEU3QiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PiDRXYQAAADbUExURU50p050p050p050p050p0VpmkVqnEZzp0dspUhumkhum0pvnEx0oU1yn01zpk10pU10p050p1B2oFh8pll8pFp+pFyBoVyCrGeJsGuHqG2MrXCPr3CVsXKOq3SOr3aTs3uVs3yZtX2ZuoKeuoSctYuiuoumwZesw6G1zaK2zbXE0rrH18LO18vV3szU3tHc5dff5Njk69nk6tzk6eXt8Ofu8Ony9O7y9e7z8vP19/P29/T3+PX3+fr7+/r9+/v7+/v9/f37+f39/P79//7+/P7+/f///P///v///zEOGxsAAAAFdFJOUz9IyeTnJbi1yAAAAH9JREFUGNNjYGASRAJMDAwsgiiAhUEQDRAlIKOnxalmrs8vqqOrDBYQtvFQEnGz4NL0sJcEC/Cpexgp2JkoWtqqskHM4DX2sHZ2cvQwYGWHCAhIWHl4uJp6OGhwwGyRM3QxE9N2d1eBWyskK8XNIy0vTpTDmFH5zAyMKN5lYQQAgNYXvjpI3BoAAAAASUVORK5CYII=" />
+							</a>
+						</div>
+						
+						<a href data-bind="text: 'share:Share'">Share</a>
+						
+						&rarr;
+					</div>
+					-->
+
+					<!-- ko ifnot: IS_OFFLINE -->
+					<br />
+					<div class="welcome__row">
+						<a id="js-download-link" class="pseudo" href="download.php" data-href-base="download.php"
+						   title="Offline Acidome version for outdoor usage eg."
+						>
+							<span data-bind="text: 'Acidome offline'">Acidome offline</span>
+							<sup class="acidome-version">420+</sup>
+						</a>
+						&DownArrowBar;
+					</div>
+
+					<div class="welcome__row">
+						<a class="pseudo" href="javascript://" onclick="figure.clientDownload('frame'); return false;"
+								data-bind="text: 'Framework .obj'">Framework .obj</a>
+						&DownArrowBar;
+					</div>
+					<!-- /ko -->
+					
+					
+					
+					<!-- Offer factory
+					  -- >
+
+					<div class="buyme" style="display: none" data-bind="
+						css: {
+							buyme_visible: !_.isEmpty( OfferFactory.resultList() ),
+							buyme_show: !localStorage.getItem('env.buymeHidden')
+						}
+					">
+						<h4 class="buyme-title" data-bind="
+							click: function($data, event) {
+							/* [two-factor-binding:] saveable */
+								/* [two-factor-binding:] init view */ 
+								localStorage.setItem('env.offerHidden',
+									/* [two-factor-binding:] */
+									$('.buyme').toggleClass('buyme_show').is('.buyme_show') ? '' : 1
+								);
+							}
+						">
+							<span data-bind="text: 'buyme:Product offering'">Product offering</span>
+						</h4>
+
+						<ul class="producer-list transparent">
+
+							<!-- promo test -/->
+							<li class="producer-item" style="display: none" data-bind="visible: 'en' == i18n.lang()">
+								<a class="producer-name" href="//www.vikingdome.com/geodesic-domes/?utm_source=acidome&utm_medium=link" target="_blank" onclick="pageTracker._trackEvent('outbound', 'vikingdome.com')">Vikingdome.com</a>
+								<div>
+									DIY dome connector kits <br>
+									Dome frame systems <br>
+									Turnkey dome solutions <br>
+									Fast manufacturing and worldwide delivery. 
+									<a href="//www.vikingdome.com/geodesic-domes/?utm_source=acidome&utm_medium=link" target="_blank" onclick="pageTracker._trackEvent('outbound', 'vikingdome.com')">Learn more…</a>
+								</div>
+							</li>
+							<li class="producer-item" style="display: none" data-bind="visible: 'es' == i18n.lang()">
+								<a class="producer-name" href="https://www.vikingdome.es/estructuras-en-forma-de-cupula/sistemas-de-marcos-de-cupulas/?utm_source=acidome&utm_medium=link" target="_blank" onclick="pageTracker._trackEvent('outbound', 'vikingdome.es')">Vikingdome.es</a>
+								<div>
+									Kits de conectores para auto-construccion de Domos Geodésicos <br>
+									Materiales para la estructura Domo <br>
+									Diferentes soluciones Domo, llave en mano
+									<a href="//www.vikingdome.es/geodesic-domes/?utm_source=acidome&utm_medium=link" target="_blank" onclick="pageTracker._trackEvent('outbound', 'vikingdome.com')">Mas información en…</a>
+								</div>
+							</li>
+							<!-- /promo test -- >
+
+							<!-- ko foreach: viewer.mode() === 'tent' ? OfferFactory.resultList : OfferFactory.resultList -- >
+							<li class="producer-item">
+								<!-- ko if: $data.producerLink -- >
+									<a class="producer-name" target="_blank" data-bind="text: producerName, attr: { href: producerLink }"></a>
+								<!-- /ko -->
+								<!-- ko-- if: !$data.producerLink -- >
+									<div class="producer-name" data-bind="text: producerName"></div>
+								<!-- /ko -- >
+
+								<form action="" target="_blank" data-bind="with: new OfferFactory.Order($data)">
+									<ul class="offer-list" data-bind="foreach: $parent.offer">
+										<!-- ko if: !$data.conditions -- >
+										<li class="offer-item">
+											<label>
+												<input type="checkbox" data-bind="checked: $parent.selectedPositions, value: name" />
+												<sub class="offer-currency" data-bind="text: currency"></sub>
+												<span class="offer-price" data-bind="text: OfferFactory.formatPrice(price)"></span>
+
+												<span class="name" data-bind="html: name"></span>
+											</label>
+										</li>
+										<!-- /ko -->
+
+										<!-- ko-- if: $data.conditions -- >
+										<li class="offer-item offer-item_fuzzy">
+											<div class="offer-name" data-bind="html: name"></div>
+
+											<div class="offer-condition">
+												<!-- ko if: $data.price -- >
+												<button class="conditional-price" data-bind="click: form.update.bind(null, conditions[0].condition)">
+													<sub class="offer-currency" data-bind="text: currency"></sub>
+													<span class="offer-price" data-bind="text: OfferFactory.formatPrice(price)"></span>
+												</button>
+												<!-- /ko -->
+
+												<!-- ko-- foreach: conditions -- >
+												<a href data-bind="click: form.update.bind(null, condition), html: name"></a>
+												<!-- /ko -- >
+											</div>
+										</li>
+										<!-- /ko -- >
+									</ul>
+
+									<!-- ko if: !_.isEmpty(selectedPositions()) -- >
+										<input type="email" placeholder="E-mail" data-bind="value: email, attr: { disabled: pending }" />
+										<button data-bind="text: 'buyme:Buy it', click: submit, attr: { disabled: pending }"></button>
+									<!-- /ko -- >
+								</form>
+							</li>
+							<!-- /ko -- >
+						</ul>
+					</div>
+					<!--  -->
+				</div>
+
+				<!--p>
+					<<i>"Носи пальто и мечтай о чем-нибудь великом",</i><br/>
+					Кинофильм <a target="_blank" href="//www.kinopoisk.ru/film/45028/>">«Курьер»</a>, СССР, 1986
+				</p-->
+			</div>
+			
+			<!-- geodesic options form -->
+			
+			<form class="options transparent slow-toggle-visibility" style="display: none" data-bind="visible: detailList() && !IS_IFRAME">
+				<div style="position: relative;display: inline-block;min-height: 3em;min-width: 1em;">
+					<!-- calculation progress -->
+					<div class="progress"></div>
+					
+					<!-- view mode list -->
+					<ul class="mode-list button-list button-list_inline">
+						<li class="mode round button" data-mode="base" data-bind="text: 'Base'">Base</li>
+						<li class="mode round button active" data-mode="carcass" data-bind="text: 'Carcass'">Carcass</li>
+						<li class="mode round button" data-mode="schema" data-bind="text: 'Schema'">Schema</li>
+						<li class="mode round button" data-mode="cover" data-bind="text: 'Cover'">Cover</li>
+
+						<!-- ko if: clothier.onRun -->
+						<!--<li class="mode round button" data-mode="clothier" data-bind="text: 'clothier:Clothier'"></li>-->
+						<!-- /ko -->
+						
+						<!-- ko if: CONFIG.get('view.modeTent.present')
+									&& ! form.fullerenType() && form.partial() !== '1/1' -->
+						<li class="mode mode_tent round button" style="position: relative" data-mode="tent" data-bind="
+							click: function() {
+								if (_.isEmpty( form.tentNetLineList() )) {
+									form.initTentNet();
+								}
+							},
+							css: {
+								active: 'tent' === viewer.mode()
+							}
+						">
+							<span data-bind="text: 'Tent'"></span>
+							
+							<sup style="
+								margin-left: -.3em;
+								position: absolute;
+								bottom: .8em;
+								z-index: 38;
+								transition: all 600ms ease;
+							" data-bind="
+								style: {
+									fontSize: 'tent' === viewer.mode() ? '1em' : '.9em',
+									color: 'tent' === viewer.mode() ? 'red' : 'salmon'
+								}
+							">
+								<!--&alpha;-->
+								&Psi;
+							</sup>
+							
+							&nbsp;
+							
+							<!-- ko with: 'tent' === viewer.mode() && viewer.pattern.ready -->
+							<a href class="tent-button" data-bind="
+								click: mode.bind(_, mode() === 'polyhedron' ? 'pattern' : 'polyhedron')
+							">
+								<span data-bind="if: mode() === 'polyhedron'">&ddarr;</span>
+								<span data-bind="if: mode() === 'pattern'">&#9696;</span>
+							</a>
+							
+							<div class="tent-button">
+								<span style="z-index: 1">&#x1F4BE;</span>
+								<input
+									type="file" name="tent-image" class="tent-image-file"
+									accept="image/jpeg,image/png,image/gif"
+									onclick="event.stopPropagation();"
+									style="z-index: 2"
+									data-bind="
+										event: {
+											change: function(vm, event) {
+												var file = event.target.files[0],
+													reader = new FileReader();
+												
+												reader.onload = function(e) {
+													var dataURL = e.target.result;
+													
+													// set image loading result as image src
+													var image = viewer.drivers.tent.N.content.image;
+													
+													$(image).one('load', function() {
+														// repaint tent with new texture
+														viewer.flash(true);
+													});
+													
+													image.src = dataURL;
+												};
+												
+												reader.readAsDataURL(file);
+												
+												// reset input value
+												event.target.value = '';
+											}
+										}
+									"
+								/>
+							</div>
+							
+							<div class="tent-progress" data-bind="
+								visible: progress,
+								style: {
+									right: Math.round(100 - progress() * 100) + '%'
+								},
+								text: 'pattern calculation'
+							"></div>
+							<!-- /ko -->
+						</li>
+						<!-- /ko -->
+					</ul>
+					
+					<!-- by right side of form -->
+					<div class="stat transparent">
+						<label class="toggle" style="white-space: nowrap; line-height: 2.8em; padding: 0 1.2em;">
+							<span class="pseudo" data-bind="text: 'Resulting'"></span>
+							&#x25BC;
+						</label>
+						<pre class="report" data-bind="
+							html: function() {
+								//debugger;
+								return reportText()
+							}()
+						"></pre>
+					</div>
+				</div>
+
+				<!-- form content start here -->
+				<h3 data-bind="text: 'Figure options'">Figure options</h3>
+
+				<dl>
+					<dt data-bind="text: 'Polyhedron'">Polyhedron</dt>
+					<dd>
+						<select data-bind="
+							options: [{
+								value: 'Icosahedron', 
+								name: i18n('Icosahedron')
+							}, {
+								value: 'Octohedron',
+								name: i18n('Octohedron')
+							}],
+							optionsValue: 'value',
+							optionsText: 'name',
+							value: base
+						">
+							<option>Icosahedron</option>
+							<option>Octohedron</option>
+						</select>
+					</dd>
+				</dl>
+
+				<dl>
+					<dt data-bind="text: 'Level of detail, V'">Level of detail, V</dt>
+					<dd>
+						<select data-bind="
+							options: detailList,
+							value: detail
+						"></select>
+					</dd>
+				</dl>
+
+				<dl data-bind="visible: detail() >= 2">
+					<dt data-bind="text: 'Subdivision class'">Subdivision class</dt>
+					<dd>
+						<select data-bind="
+							value: subdivClass,
+							options: subdivClassList,
+							optionsText: 'name',
+							optionsValue: 'id',
+							attr: {
+								disabled: subdivClassList().length <= 1
+							}
+						"></select>
+					</dd>
+				</dl>
+
+				<dl data-bind="visible: detail() >= 3 && 'I' == subdivClass()">
+					<dt data-bind="text: 'Subdivision method'">Subdivision method</dt>
+					<dd style="position: relative">
+						<select data-bind="
+							value: subdivMethod,
+							options: subdivMethodList,
+							optionsValue: 'id',
+							optionsText: 'name'
+						">
+							<option value="Chords">Equal Chords</option>
+							<option value="Arcs">Equal Arcs</option>
+							<option value="Mexican">Mexican</option>
+						</select>
+						
+						<!-- ko if: 'Kruschke' === subdivMethod() -->
+						<div style="position: absolute; bottom: 100%; right: 0; padding: .5em; border-radius: 50%; background: red; color: white">
+							NeW!
+						</div>
+						<!-- /ko -->
+					</dd>
+				</dl>
+
+				<dl data-bind="visible: 1 || (subdivClass() == 'II')">
+					<dt data-bind="text: 'Rotational symmetry'">Rotational symmetry</dt>
+					<dd>
+						<select data-bind="options: ['Pentad', 'Cross', 'Triad'], value: symmetry">
+							<option value="Pentad">Pentad</option>
+							<option value="Cross">Cross</option>
+							<option value="Triad">Triad</option>
+						</select>
+					</dd>
+				</dl>
+
+				<dl data-bind="visible: connType() != 'Joint'">
+					<dt data-bind="text: 'Fullerene'">Fullerene</dt>
+					<dd>
+						<select data-bind="
+							value: fullerenType,
+							options: FULLEREN_TYPE_LIST,
+							optionsText: 'name',
+							optionsValue: 'id',
+							optionsCaption: __('fulleren:None'),
+							event: {
+								change: function() {
+									if (fullerenType()) {
+										// fulleren has no tent mode
+										if (viewer.mode() === 'tent') {
+											viewer.mode('cover');
+										}
+									}
+								}
+							}
+						"></select>
+					</dd>
+				</dl>
+
+				<dl>
+					<dt data-bind="text: 'Part of full sphere'">Part of full sphere</dt>
+					<dd>
+						<select data-bind="
+							options: partialList,
+							value: partial
+						"></select>
+					</dd>
+				</dl>
+
+					<dl class="sub" data-bind="visible: canAlignTheBase">
+						<dt>
+							<label for="alignTheBase_switcher" data-bind="text: 'Align the base'">Align the base</label>
+						</dt>
+						<dd>
+							<input id="alignTheBase_switcher" type="checkbox" data-bind="
+								checked: alignTheBase
+							"></select>
+						</dd>
+					</dl>
+
+
+				<h3 data-bind="text: 'Product options'">Product options</h3>
+
+				<dl>
+					<dt data-bind="text: 'Sphere radius, m'">Sphere radius, m</dt>
+					<dd>
+						<input class="input_text" 
+							data-bind="value: radius"
+							onblur="$(this).val( this.value.replace(/\s/g, '').replace(/,/, '.') ).trigger('change'); "
+						/>
+					</dd>
+				</dl>
+
+				<dl>
+					<dt data-bind="text: 'Connection type'">Connection type</dt>
+					<dd>
+						<select data-bind="options: connTypeList, value: connType">
+							<option value="Piped">Piped</option>
+							<option value="GoodKarma">GoodKarma</option>
+							<option value="Semicone">Semicone</option>
+							<option value="Cone">Cone</option>
+							<option value="Joint">Joint</option>
+						<select>
+					</dd>
+				</dl>
+
+				<!-- properties what caused from connector type (and other) -->
+
+					<dl class="sub" data-bind="
+						visible: (connType() == 'Piped')
+							|| (
+								/* mixed mode Piped + Cone, if can't Cone everywhere */
+								/* todo: expand condition to all ''can't Cone everywhere'' */
+								connType() == 'Cone' &&
+								subdivMethod() == 'Kruschke'
+							)
+					">
+						<dt data-bind="text: 'Pipe diameter, mm'">Pipe diameter, mm</dt>
+						<dd>
+							<input class="input_text" 
+								data-bind="value: pipeD, __valueUpdate: 'keyup'" 
+								onblur="$(this).val( this.value.replace(/\s/g, '').replace(/,/, '.') ).trigger('change'); "
+							/>
+						</dd>
+					</dl>
+					
+					<dl class="sub" data-bind="visible: _.contains(['Joint', 'Nose', 'GoodKarma'], connType())">
+						<dt>
+							<label for="clockwise_switcher" data-bind="text: 'Spinning clockwise'">Spinning clockwise</label>
+						</dt>
+						<dd>
+							<input id="clockwise_switcher" type="checkbox" data-bind="checked: clockwise"/>
+							<span class="gray">
+								(<label for="clockwise_switcher" data-bind="text: 'else counter'"></label>)
+							</span>
+						</dd>
+					</dl>
+
+				
+				<h3 data-bind="text: 'Timber size'">Timber size</h3>
+
+				<dl>
+					<dt data-bind="text: 'Width, mm'">Width, mm</dt>
+					<dd>
+						<input class="input_text" 
+							data-bind="value: beamsWidth" 
+							onblur="$(this).val( this.value.replace(/\s/g, '').replace(/,/, '.') ).trigger('change'); "
+						/>
+					</dd>
+				</dl>
+
+				<dl>
+					<dt data-bind="text: 'Thickness, mm'">Thickness, mm</dt>
+					<dd>
+						<input class="input_text" 
+							data-bind="value: beamsThickness" 
+							onblur="$(this).val( this.value.replace(/\s/g, '').replace(/,/, '.') ).trigger('change'); "
+						/>
+					</dd>
+				</dl>
+			</form>
+
+			<!--<div class="info">&nbsp;</div>-->
+
+			<div class="budget-list" data-bind="visible: true" style="display: none">
+				<!-- ko foreach: budgetList -->
+				<h2 data-bind="text: 'budget:title:' + type"></h2>
+
+				<ul data-bind="attr: { 'class': type }">
+					<!-- ko foreach: sizeList -->
+					<li class="product" data-bind="visible: units().length > 0">
+						<i class="product-index" data-bind="text: index, attr: { style: 'background-color: ' + color }"></i>
+						<span data-bind="text: units().length + ' ' + __('pcs')"></span>
+
+						<!-- ko if: $parent.type == 'line' -->
+						<!--<a href="//popitch1.livejournal.com/7699.html" target="_blank" style="border: 1px solid gray; border-radius: 50%; margin-left: 10px; text-decoration:none; width: .9em; display: inline-block; padding-left: 4px;">?</a>-->
+						<!-- /ko -->
+						<!--<br/>-->
+
+						<!-- ko if: $parent.type == 'line' && /GoodKarma|Semicone|Piped_TODO|Joint_TODO/.test(form.connType()) -->
+						<button class="rotate" style="margin-left: 5em; cursor: pointer; font-size: 1.5em" data-bind="
+							click: function(vm, event) {
+								var scrollTop = $(window).scrollTop(),
+									offsetTop = $(event.target).offset().top;
+
+							    form.strutViewBySide(! form.strutViewBySide()); // toggle view mode
+
+							    $(window).scrollTop(
+							    	scrollTop + (
+							    		$(event.target).offset().top - offsetTop
+							    	)
+							    );
+							},
+							text: form.strutViewBySide() ? '⤴' : '⤵'
+						"></button>
+						
+						<br/>
+						<canvas data-bind="
+							attr: $parent.canvasAttr,
+							plot: product,
+							visible: ! form.strutViewBySide()
+						"></canvas>
+
+						<canvas style="display: none" data-bind="
+							attr: _.extend({}, $parent.canvasAttr, {
+								height: (function(heightBefore) {
+									var MARGIN = 20; // px
+
+									return (heightBefore - 2 * MARGIN) * (product.width / product.thickness) + 2 * MARGIN;
+								})($parent.canvasAttr.height)
+							}),
+							plot: [
+								product, {
+									sideView: true
+								}
+							],
+							visible: form.strutViewBySide
+						"></canvas>
+						<!-- /ko -->
+
+						<!-- ko ifnot: $parent.type == 'line' && /GoodKarma|Semicone|Piped_TODO|Joint_TODO/.test(form.connType()) -->
+						<br />
+						<canvas data-bind="
+							attr: $parent.canvasAttr,
+							plot: product
+						"></canvas>
+						<!-- /ko -->
+					</li>
+					<!-- /ko -->
+				</ul>
+				<!-- /ko -->
+			</div>
+		</div>
+
+	<!-- JavaScript libraries -->
+	<script src="lib/jquery.min.js"></script>
+	<script src="lib/underscore.min.js"></script>
+	<script src="lib/backbone-events.min.js"></script>
+	<script src="lib/knockout.min.js"></script>
+	<script src="lib/three.min.js"></script>
+
+	<!-- ACIDOME custom code -->
+	<script src="src/acidome.js"></script>
+
+	<!-- Google Analytics -->
+	<script src="lib/google-analytics.js"></script>
+</body>
+</html>
