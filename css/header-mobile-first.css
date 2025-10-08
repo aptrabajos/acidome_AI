@@ -1,0 +1,764 @@
+/**
+ * =============================================
+ * ACIDOME - HEADER MOBILE FIRST
+ * =============================================
+ * Diseño responsive del header con menú hamburguesa
+ * Breakpoints: 640px (sm), 768px (md), 1024px (lg)
+ */
+
+/* === VARIABLES CSS === */
+:root {
+	--color-primary: #ff4444;
+	--color-primary-light: #ff8844;
+	--color-text: #333;
+	--color-text-light: #666;
+	--color-border: #ddd;
+	--color-bg: #ffffff;
+	--color-bg-light: #f9f9f9;
+
+	--header-height: 60px;
+	--nav-width-mobile: 280px;
+
+	--transition-speed: 0.3s;
+	--transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === RESET BODY CUANDO MENU ABIERTO === */
+body.menu-open {
+	overflow: hidden;
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL - MOBILE FIRST
+   ============================================ */
+
+/* Body con padding-top para el header fijo */
+body {
+	margin: 0;
+	padding-top: var(--header-height); /* Espacio para header fijo */
+}
+
+/* Contenedor geodesic - mantener comportamiento original */
+.geodesic {
+	/* Mantener el position: relative original del CSS antiguo */
+	/* NO tocar para que el canvas y options funcionen como antes */
+}
+
+/* Canvas - dejar que funcione como el CSS original lo diseñó */
+.geodesic canvas.preview {
+	/* NO sobrescribir - dejar que el CSS original y JS manejen esto */
+}
+
+/* Formulario - con fondo semi-transparente para ver el canvas */
+.geodesic form.options {
+	/* Mantener position: absolute del CSS original */
+	top: 1rem !important; /* Pequeño margen desde arriba */
+
+	/* Glassmorphism - fondo translúcido */
+	background: rgba(255, 255, 255, 0.85) !important; /* 85% opaco */
+	backdrop-filter: blur(12px) !important;
+	-webkit-backdrop-filter: blur(12px) !important;
+	border-radius: 16px !important;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+	border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ============================================
+   HEADER PRINCIPAL
+   ============================================ */
+.acidome-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+	background: var(--color-bg);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* === BARRA SUPERIOR === */
+.header__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.75rem 1rem;
+	height: var(--header-height);
+	gap: 1rem;
+	background: var(--color-bg);
+}
+
+/* === BOTÓN MENÚ HAMBURGUESA === */
+.header__menu-toggle {
+	width: 44px;
+	height: 44px;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8px;
+	transition: background var(--transition-speed) var(--transition-ease);
+}
+
+.header__menu-toggle:hover {
+	background: var(--color-bg-light);
+}
+
+.header__menu-toggle:focus {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+/* Animación hamburguesa */
+.hamburger {
+	display: block;
+	position: relative;
+	width: 24px;
+	height: 2px;
+	background: var(--color-text);
+	transition: all var(--transition-speed) var(--transition-ease);
+}
+
+.hamburger::before,
+.hamburger::after {
+	content: '';
+	position: absolute;
+	width: 24px;
+	height: 2px;
+	background: var(--color-text);
+	transition: all var(--transition-speed) var(--transition-ease);
+}
+
+.hamburger::before { top: -8px; }
+.hamburger::after { top: 8px; }
+
+/* Transformación a X */
+.header__menu-toggle.active .hamburger {
+	background: transparent;
+}
+
+.header__menu-toggle.active .hamburger::before {
+	transform: rotate(45deg);
+	top: 0;
+}
+
+.header__menu-toggle.active .hamburger::after {
+	transform: rotate(-45deg);
+	top: 0;
+}
+
+/* === BRAND / LOGO === */
+.header__brand {
+	flex: 1;
+	display: none; /* Oculto en mobile por defecto */
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 0; /* Para que funcione text-overflow */
+}
+
+.acidome-logo {
+	font-size: 1.25rem;
+	font-weight: bold;
+	display: inline-flex;
+	align-items: center;
+	text-decoration: none;
+	transition: transform 0.3s ease;
+}
+
+.acidome-logo:hover {
+	transform: scale(1.05);
+}
+
+.acidome-logo__acid {
+	color: var(--color-primary);
+}
+
+.acidome-logo__o {
+	display: inline-block;
+	width: 0.75em;
+	height: 0.75em;
+	border-radius: 50%;
+	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+	margin: 0 0.15em;
+	position: relative;
+}
+
+/* Cara sonriente en el círculo */
+.acidome-logo__o::after {
+	content: '☺';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 0.6em;
+	color: white;
+}
+
+.acidome-logo__me {
+	color: var(--color-text);
+}
+
+/* Título */
+.header__title {
+	font-size: 0.875rem;
+	font-weight: 400;
+	color: var(--color-text-light);
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: none; /* Oculto en mobile */
+}
+
+/* === ACCIONES (Selector idioma) === */
+.header__actions {
+	display: none; /* Oculto en mobile - selector está en el menú */
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.lang-select {
+	width: 100%;
+	padding: 0.75rem;
+	border: 2px solid var(--color-border);
+	border-radius: 8px;
+	background: var(--color-bg);
+	font-size: 0.9375rem;
+	font-family: inherit;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	margin-bottom: 0.5rem;
+}
+
+.lang-select:hover {
+	border-color: var(--color-primary);
+	background: var(--color-bg-light);
+}
+
+.lang-select:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+}
+
+/* === OVERLAY (fondo oscuro en mobile) === */
+.header__overlay {
+	position: fixed;
+	top: var(--header-height);
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	opacity: 0;
+	visibility: hidden;
+	transition: all var(--transition-speed) var(--transition-ease);
+	z-index: 999;
+}
+
+.header__overlay.active {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* ============================================
+   NAVEGACIÓN (MENÚ)
+   ============================================ */
+.header__nav {
+	position: fixed;
+	top: var(--header-height);
+	left: 0;
+	width: var(--nav-width-mobile);
+	height: calc(100vh - var(--header-height));
+	background: var(--color-bg);
+	overflow-y: auto;
+	transform: translateX(-100%);
+	transition: transform var(--transition-speed) var(--transition-ease);
+	box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+	z-index: 1000;
+}
+
+.header__nav.active {
+	transform: translateX(0);
+}
+
+/* Scroll suave en iOS */
+.header__nav {
+	-webkit-overflow-scrolling: touch;
+}
+
+/* === SECCIONES DEL MENÚ === */
+.nav__section {
+	padding: 1.5rem 1rem;
+	border-bottom: 1px solid #eee;
+}
+
+.nav__section:last-child {
+	border-bottom: none;
+}
+
+.nav__section-title {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: var(--color-text-light);
+	margin: 0 0 1rem 0;
+	letter-spacing: 0.05em;
+}
+
+/* === LINKS DE NAVEGACIÓN === */
+.nav__link {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.75rem 0;
+	color: var(--color-text);
+	text-decoration: none;
+	font-size: 0.9375rem;
+	transition: color 0.2s ease, transform 0.2s ease;
+	border-radius: 6px;
+}
+
+.nav__link:hover {
+	color: var(--color-primary);
+	transform: translateX(4px);
+}
+
+.nav__link-icon {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+	flex-shrink: 0;
+}
+
+.nav__link-chevron {
+	width: 16px;
+	height: 16px;
+	fill: currentColor;
+	margin-left: auto;
+	transition: transform 0.3s ease;
+}
+
+/* Badge (etiqueta) */
+.nav__badge {
+	margin-left: auto;
+	background: var(--color-primary);
+	color: white;
+	padding: 0.125rem 0.5rem;
+	border-radius: 12px;
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+/* Link CTA (Call to action - destacado) */
+.nav__link--cta {
+	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+	color: white !important;
+	padding: 1rem;
+	border-radius: 8px;
+	justify-content: flex-start;
+	font-weight: 600;
+	margin-top: 0.5rem;
+	box-shadow: 0 2px 8px rgba(255, 68, 68, 0.2);
+}
+
+.nav__link--cta:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+}
+
+.nav__link--cta .nav__link-icon {
+	fill: white;
+}
+
+/* === COMPARTIR EN REDES SOCIALES === */
+.social-share {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.share-btn {
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--color-border);
+	border-radius: 8px;
+	background: var(--color-bg);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	transition: all 0.2s ease;
+}
+
+.share-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.share-btn__icon {
+	width: 22px;
+	height: 22px;
+	fill: #666;
+	transition: fill 0.2s ease;
+}
+
+/* Colores específicos por red social */
+.share-btn--facebook:hover {
+	border-color: #1877f2;
+	background: #1877f2;
+}
+
+.share-btn--facebook:hover .share-btn__icon {
+	fill: white;
+}
+
+.share-btn--twitter:hover {
+	border-color: #1da1f2;
+	background: #1da1f2;
+}
+
+.share-btn--twitter:hover .share-btn__icon {
+	fill: white;
+}
+
+.share-btn--linkedin:hover {
+	border-color: #0077b5;
+	background: #0077b5;
+}
+
+.share-btn--linkedin:hover .share-btn__icon {
+	fill: white;
+}
+
+.share-btn--vk:hover {
+	border-color: #4a76a8;
+	background: #4a76a8;
+}
+
+.share-btn--vk:hover .share-btn__icon {
+	fill: white;
+}
+
+/* === DONACIONES === */
+.donation-details {
+	margin-top: 0.5rem;
+}
+
+.donation-details summary {
+	list-style: none;
+	cursor: pointer;
+}
+
+.donation-details summary::-webkit-details-marker {
+	display: none;
+}
+
+.donation-details[open] .nav__link-chevron {
+	transform: rotate(180deg);
+}
+
+.donation__content {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #eee;
+}
+
+.donation__item {
+	margin-bottom: 1.5rem;
+}
+
+.donation__item:last-child {
+	margin-bottom: 0;
+}
+
+.donation__item h4 {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--color-text);
+	margin: 0 0 0.5rem 0;
+}
+
+.donation__button {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: none;
+	border-radius: 6px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	font-family: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	display: inline-block;
+	text-align: center;
+	transition: all 0.2s ease;
+}
+
+.donation__button--paypal {
+	background: #0070ba;
+	color: white;
+}
+
+.donation__button--paypal:hover {
+	background: #005a95;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 112, 186, 0.3);
+}
+
+.donation__button--yandex {
+	background: #ffcc00;
+	color: #000;
+}
+
+.donation__button--yandex:hover {
+	background: #e6b800;
+	transform: translateY(-2px);
+}
+
+.donation__wallet {
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	font-size: 0.75rem;
+	font-family: 'Courier New', monospace;
+	background: var(--color-bg-light);
+	cursor: pointer;
+}
+
+.donation__wallet:hover {
+	border-color: var(--color-primary);
+	background: white;
+}
+
+.donation__wallet:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
+}
+
+.donation__text {
+	font-size: 0.75rem;
+	color: var(--color-text-light);
+	margin: 0.5rem 0 0 0;
+	line-height: 1.4;
+}
+
+/* ============================================
+   RESPONSIVE - TABLET (768px+)
+   ============================================ */
+@media (min-width: 768px) {
+	/* HEADER FIJO EN DESKTOP */
+	.acidome-header {
+		position: fixed; /* Fijo arriba */
+		top: 0;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	}
+
+	/* Barra superior OCULTA en desktop */
+	.header__top {
+		display: none; /* Eliminada completamente en desktop */
+	}
+
+	/* Calcular altura exacta del header compacto: ~30px */
+	:root {
+		--header-desktop-height: 30px;
+	}
+
+	/* ============================================
+	   LAYOUT DESKTOP - Header fijo arriba
+	   ============================================ */
+
+	/* Body con menos padding en desktop (header más compacto) */
+	body {
+		padding-top: 0; /* Sin padding porque header no es fixed en desktop */
+	}
+
+	/* Header no fixed en desktop - fluye normalmente */
+	.acidome-header {
+		position: relative;
+	}
+
+	/* Geodesic y canvas mantienen comportamiento original */
+	.geodesic {
+		/* Dejar que funcione como el CSS original */
+	}
+
+	.geodesic canvas.preview {
+		/* Dejar que el CSS original y JS lo manejen */
+	}
+
+	/* Formulario mantiene comportamiento original en desktop */
+	.geodesic form.options {
+		top: 4em !important; /* Volver al top original del CSS */
+	}
+
+	/* Ocultar botón hamburguesa */
+	.header__menu-toggle {
+		display: none;
+	}
+
+	/* Navegación horizontal ULTRA COMPACTA */
+	.header__nav {
+		position: static;
+		width: auto;
+		height: auto;
+		transform: none;
+		display: flex;
+		flex-direction: row;
+		overflow: visible;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+		border-top: none;
+		border-bottom: 1px solid #eee;
+		padding: 0.1rem 0.5rem; /* ULTRA reducido - casi sin padding vertical */
+	}
+
+	/* Overlay no necesario */
+	.header__overlay {
+		display: none;
+	}
+
+	/* Secciones en fila ULTRA COMPACTAS */
+	.nav__section {
+		padding: 0.1rem 0.4rem; /* ULTRA reducido */
+		border-bottom: none;
+		border-right: 1px solid #eee;
+	}
+
+	.nav__section:last-child {
+		border-right: none;
+	}
+
+	/* Títulos ULTRA PEQUEÑOS */
+	.nav__section-title {
+		font-size: 0.4rem; /* Muy pequeño */
+		margin-bottom: 0.1rem; /* Casi sin margen */
+		font-weight: 600;
+	}
+
+	/* Links ULTRA COMPACTOS */
+	.nav__link {
+		padding: 0.1rem 0; /* Casi sin padding */
+		font-size: 0.6rem; /* Muy pequeño */
+		gap: 0.25rem;
+	}
+
+	.nav__link-icon {
+		width: 12px; /* ULTRA pequeño */
+		height: 12px;
+	}
+
+	/* Botones sociales ULTRA PEQUEÑOS */
+	.share-btn {
+		width: 20px; /* ULTRA pequeño */
+		height: 20px;
+		border-width: 1px;
+	}
+
+	.share-btn__icon {
+		width: 10px; /* ULTRA pequeño */
+		height: 10px;
+	}
+
+	/* Badge más pequeño */
+	.nav__badge {
+		font-size: 0.5rem;
+		padding: 0.03rem 0.25rem;
+	}
+
+	/* CTA más compacto */
+	.nav__link--cta {
+		padding: 0.25rem 0.4rem; /* ULTRA reducido */
+		font-size: 0.6rem;
+	}
+
+	/* Social share grid compacto */
+	.social-share {
+		gap: 0.2rem;
+	}
+
+	/* Selector de idioma compacto en desktop */
+	.nav__section .lang-select {
+		padding: 0.4rem;
+		font-size: 0.75rem;
+		margin-bottom: 0;
+	}
+}
+
+/* ============================================
+   RESPONSIVE - DESKTOP (1024px+)
+   ============================================ */
+@media (min-width: 1024px) {
+	.header__top {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 0.75rem 2rem;
+	}
+
+	.header__nav {
+		max-width: 1400px;
+		margin: 0 auto;
+		padding: 0.75rem 2rem;
+	}
+
+	.acidome-logo {
+		font-size: 1.5rem;
+	}
+
+	.header__title {
+		font-size: 1rem;
+	}
+
+	/* Más espacio entre secciones */
+	.nav__section {
+		padding: 0.5rem 1.5rem;
+	}
+}
+
+/* ============================================
+   DESKTOP GRANDE (1280px+)
+   ============================================ */
+@media (min-width: 1280px) {
+	.header__top,
+	.header__nav {
+		max-width: 1600px;
+	}
+}
+
+/* ============================================
+   MODO OSCURO (opcional para futuro)
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+	/* Dejar comentado por ahora, activar cuando se implemente dark mode
+	:root {
+		--color-text: #e0e0e0;
+		--color-text-light: #b0b0b0;
+		--color-border: #404040;
+		--color-bg: #1a1a1a;
+		--color-bg-light: #2a2a2a;
+	}
+	*/
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+/* Focus visible mejorado */
+*:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+/* Reducir movimiento para usuarios que lo prefieren */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
