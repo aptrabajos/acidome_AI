@@ -135,12 +135,18 @@ export const SUBDIV_METHOD_LIST = [
 export const SYMMETRY_LIST = ['Pentad', 'Cross', 'Triad']
 
 /**
- * Language options
+ * Language options - All 11 supported languages from original ACIDOME
  */
 export const LANGUAGE_OPTIONS = [
   { id: 'en', name: 'English', code: 'en' },
-  { id: 'es', name: 'Español', code: 'es' },
   { id: 'ru', name: 'Русский', code: 'ru' },
+  { id: 'es', name: 'Español', code: 'es' },
+  { id: 'ua', name: 'Українська', code: 'ua' },
   { id: 'fr', name: 'Français', code: 'fr' },
-  { id: 'de', name: 'Deutsch', code: 'de' }
+  { id: 'bg', name: 'Български', code: 'bg' },
+  { id: 'pl', name: 'Polski', code: 'pl' },
+  { id: 'gr', name: 'Ελληνικά', code: 'gr' },
+  { id: 'nl', name: 'Nederlands', code: 'nl' },
+  { id: 'de', name: 'Deutsch', code: 'de' },
+  { id: 'ro', name: 'Română', code: 'ro' }
 ]

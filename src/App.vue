@@ -7,7 +7,7 @@
         <p class="tagline">Professional refactored with Vue 3 + TypeScript</p>
       </div>
 
-      <!-- Language Selector -->
+      <!-- Language Selector - All 11 ACIDOME Languages -->
       <div class="language-selector">
         <label for="lang-select">Language:</label>
         <select
@@ -16,11 +16,13 @@
           @change="store.setLanguage(store.language)"
           class="lang-select"
         >
-          <option value="en">English</option>
-          <option value="es">Español</option>
-          <option value="ru">Русский</option>
-          <option value="fr">Français</option>
-          <option value="de">Deutsch</option>
+          <option
+            v-for="lang in languages"
+            :key="lang.id"
+            :value="lang.id"
+          >
+            {{ lang.name }}
+          </option>
         </select>
       </div>
     </header>
@@ -172,9 +174,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAppStore } from './ui/store/appStore'
+import { LANGUAGE_OPTIONS } from './utils/config'
 
 const store = useAppStore()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const languages = LANGUAGE_OPTIONS
 
 const onParamChange = () => {
   // Trigger recalculation if needed
