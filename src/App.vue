@@ -6,6 +6,23 @@
         <h1>🔵 Acidome - Geodesic Dome Calculator</h1>
         <p class="tagline">Professional refactored with Vue 3 + TypeScript</p>
       </div>
+
+      <!-- Language Selector -->
+      <div class="language-selector">
+        <label for="lang-select">Language:</label>
+        <select
+          id="lang-select"
+          v-model="store.language"
+          @change="store.setLanguage(store.language)"
+          class="lang-select"
+        >
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="ru">Русский</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </div>
     </header>
 
     <!-- Main content -->
@@ -186,6 +203,10 @@ onMounted(() => {
   color: white;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
 
   h1 {
     margin: 0;
@@ -197,6 +218,51 @@ onMounted(() => {
     margin: 0.5rem 0 0 0;
     font-size: 0.9rem;
     opacity: 0.9;
+  }
+
+  .header-content {
+    flex: 1;
+  }
+
+  .language-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    white-space: nowrap;
+
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .lang-select {
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 150px;
+
+      &:hover {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+      }
+
+      option {
+        color: #333;
+        background: white;
+      }
+    }
   }
 }
 
