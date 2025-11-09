@@ -15,6 +15,13 @@
 import express, { Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import { AcidomeCalculator, DomeParams, DomeResults } from './calculator'
+import {
+  generateBeamPlot,
+  generatePanelPlot,
+  generateConnectorPlot,
+  generateAssemblyPlot,
+  PlotData,
+} from './plots'
 
 /**
  * Initialize Express app
@@ -146,10 +153,119 @@ app.post('/api/dome/calculate', (req: Request, res: Response, next: NextFunction
     const calculator = new AcidomeCalculator(params)
     const results = calculator.calculate()
 
-    // Return results
+    // Generate plots
+    const plots: Record<string, PlotData> = {
+      beam: generateBeamPlot(
+        results.beams.length,
+        params.beamsWidth,
+        params.beamsThickness,
+        0.5
+      ),
+      panel: generatePanelPlot(results.panels.sideLength, 0.5),
+      connector: generateConnectorPlot(params.connType, results.connectors.convergences, 1),
+      assembly: generateAssemblyPlot(
+        results.beams.count,
+        results.panels.count,
+        results.connectors.count,
+        0.5
+      ),
+    }
+
+    // Return results with plots
     res.json({
       success: true,
       data: results,
+      plots,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+/**
+ * Individual plot endpoints
+ * These endpoints return specific plots (SVG + JSON) for a given component type
+ */
+
+/**
+ * GET /api/plots/beam
+ * Generate technical drawing for a beam
+ * Query params: length, width, thickness, scale (optional)
+ */
+app.get('/api/plots/beam', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const length = Number(req.query.length) || 1717
+    const width = Number(req.query.width) || 160
+    const thickness = Number(req.query.thickness) || 40
+    const scale = Number(req.query.scale) || 0.5
+
+    const plot = generateBeamPlot(length, width, thickness, scale)
+    res.json({
+      success: true,
+      data: plot,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+/**
+ * GET /api/plots/panel
+ * Generate technical drawing for a triangular panel
+ * Query params: sideLength, scale (optional)
+ */
+app.get('/api/plots/panel', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const sideLength = Number(req.query.sideLength) || 1717
+    const scale = Number(req.query.scale) || 0.5
+
+    const plot = generatePanelPlot(sideLength, scale)
+    res.json({
+      success: true,
+      data: plot,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+/**
+ * GET /api/plots/connector
+ * Generate technical drawing for a connector node
+ * Query params: type, convergences, scale (optional)
+ */
+app.get('/api/plots/connector', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const type = (req.query.type as string) || 'GoodKarma'
+    const convergences = Number(req.query.convergences) || 6
+    const scale = Number(req.query.scale) || 1
+
+    const plot = generateConnectorPlot(type, convergences, scale)
+    res.json({
+      success: true,
+      data: plot,
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
+/**
+ * GET /api/plots/assembly
+ * Generate complete assembly drawing
+ * Query params: beams, panels, connectors, scale (optional)
+ */
+app.get('/api/plots/assembly', (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const beams = Number(req.query.beams) || 129
+    const panels = Number(req.query.panels) || 75
+    const connectors = Number(req.query.connectors) || 60
+    const scale = Number(req.query.scale) || 0.5
+
+    const plot = generateAssemblyPlot(beams, panels, connectors, scale)
+    res.json({
+      success: true,
+      data: plot,
     })
   } catch (error) {
     next(error)
@@ -204,6 +320,11 @@ app.use((req: Request, res: Response) => {
     path: req.path,
     availableEndpoints: [
       'POST /api/dome/calculate',
+      'POST /api/dome/batch',
+      'GET /api/plots/beam',
+      'GET /api/plots/panel',
+      'GET /api/plots/connector',
+      'GET /api/plots/assembly',
       'GET /api/health',
       'GET /api/docs',
     ],
@@ -259,6 +380,11 @@ export function startServer(port: number = PORT) {
     console.log(`═══════════════════════════════════════════════════════════`)
     console.log(`\nEndpoints:`)
     console.log(`  POST  http://localhost:${port}/api/dome/calculate`)
+    console.log(`  POST  http://localhost:${port}/api/dome/batch`)
+    console.log(`  GET   http://localhost:${port}/api/plots/beam`)
+    console.log(`  GET   http://localhost:${port}/api/plots/panel`)
+    console.log(`  GET   http://localhost:${port}/api/plots/connector`)
+    console.log(`  GET   http://localhost:${port}/api/plots/assembly`)
     console.log(`  GET   http://localhost:${port}/api/health`)
     console.log(`  GET   http://localhost:${port}/api/docs`)
     console.log(`\nExample request:`)
