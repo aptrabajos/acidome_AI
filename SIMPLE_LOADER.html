@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ACIDOME Instrumented - Loader</title>
+</head>
+<body>
+    <h1>🔬 ACIDOME Instrumentation System</h1>
+    <p>Loading instrumented version...</p>
+
+    <div id="status">
+        <h2>Status:</h2>
+        <ul id="status-list"></ul>
+    </div>
+
+    <hr/>
+
+    <!-- Cargar herramientas de instrumentación primero -->
+    <script src="instrumentation/logger.js"></script>
+    <script src="instrumentation/profiler.js"></script>
+    <script src="instrumentation/data-capturer.js"></script>
+    <script src="instrumentation/proxy-instrumenter.js"></script>
+
+    <!-- Cargar ACIDOME original en iframe -->
+    <iframe
+        id="acidome-frame"
+        src="ACIDOME_CALC_251007$7_12_Kruschke_GoodKarma_3V_R2.20_beams_120x40.html"
+        style="width: 100%; height: 90vh; border: 1px solid #ccc;"
+        onload="initInstrumentation()"
+    ></iframe>
+
+    <script>
+        function log(message) {
+            const li = document.createElement('li');
+            li.textContent = message;
+            document.getElementById('status-list').appendChild(li);
+            console.log(message);
+        }
+
+        function initInstrumentation() {
+            log('✅ ACIDOME loaded');
+
+            try {
+                const frame = document.getElementById('acidome-frame');
+                const frameWindow = frame.contentWindow;
+
+                log('✅ Frame window accessed');
+
+                // Inyectar herramientas en el iframe
+                frameWindow.acidomeLogger = window.acidomeLogger;
+                frameWindow.acidomeProfiler = window.acidomeProfiler;
+                frameWindow.acidomeDataCapturer = window.acidomeDataCapturer;
+                frameWindow.ProxyInstrumenter = window.ProxyInstrumenter;
+
+                log('✅ Instrumentation tools injected');
+
+                // Crear instancia de instrumentador en el iframe
+                frameWindow.proxyInstrumenter = new frameWindow.ProxyInstrumenter();
+
+                log('✅ Proxy instrumenter created');
+
+                // Auto-instrumentar después de que todo esté cargado
+                setTimeout(() => {
+                    const count = frameWindow.proxyInstrumenter.autoInstrument();
+                    log(`✅ Auto-instrumented ${count} functions`);
+
+                    log('🎉 READY! Use ACIDOME normally.');
+                    log('📊 Check console for captured data');
+                }, 2000);
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`);
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
