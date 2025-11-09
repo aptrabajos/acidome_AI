@@ -1,0 +1,201 @@
+================================================================================
+ACIDOME LINES/BEAMS DRAWING AND MEASUREMENT SYSTEM - SEARCH RESULTS SUMMARY
+================================================================================
+
+SEARCH REQUEST COMPLETED: Found complete information about lines drawing and 
+measurement system in original acidome.js and TypeScript migration files.
+
+================================================================================
+GENERATED DOCUMENTATION
+================================================================================
+
+1. LINES_DRAWING_TECHNICAL_ANALYSIS.md (Main Document)
+   - 11 comprehensive sections covering all aspects
+   - 400+ lines of detailed analysis with code snippets
+   - Complete system architecture explanation
+   - Location: /home/user/acidome_AI/LINES_DRAWING_TECHNICAL_ANALYSIS.md
+
+2. LINES_QUICK_REFERENCE.md (Quick Reference)
+   - Summary tables and key locations
+   - Data flow diagrams
+   - Common operations code examples
+   - Status of TypeScript migration
+   - Location: /home/user/acidome_AI/LINES_QUICK_REFERENCE.md
+
+================================================================================
+KEY FINDINGS SUMMARY
+================================================================================
+
+1. BEAM REPRESENTATION & STRUCTURE
+   - Beams created from Figure edges (vertices connected)
+   - Each beam has: start point, end point, length, width, thickness
+   - TypeScript Beam interface in /src/types/product.ts
+   - Original Product.Rib.Beam class in /src/acidome.js lines 5300-5707
+
+2. MEASUREMENTS CALCULATED FOR EACH PIECE
+   - Length: Distance between vertices
+   - Width: Parallel to radius (mm) - user parameter
+   - Thickness: Perpendicular to radius (mm) - user parameter
+   - midLength: Center section length
+   - maxLength: Extended length including bevels
+   - minLength: Minimum length with bevels
+   - Volume: midLength x width x thickness x R^3
+
+3. REFERENCE DIMENSIONS & DISPLAY
+   - Bevel angles: Inner (bevelInner), left/right (bevelSides)
+   - Connector types: Piped, Joint, GoodKarma, Semicone, Cone
+   - Material: "Beams XxYmm" (e.g., "Beams 120x40mm")
+   - Angle between connected faces
+   - Base area for edge beams
+
+4. CANVAS DRAWING SYSTEM (HTML5 Canvas 2D)
+   - Plotter base class: Manages 2D context
+   - Methods: line(), circle(), text(), textByLine()
+   - Plotter.Beam: Beam technical drawings (lines 6162-6298)
+   - Plotter.Triangle: Face/panel drawings (lines 6304-6395)
+   - Coordinate mapping: Data space -> Canvas pixels
+
+5. TECHNICAL DRAWING OUTPUT
+   - Line segments with dashed/solid styles
+   - Text labels positioned along lines
+   - Vertex circles with index labels
+   - Angle annotations at connector joints
+   - Bevel specifications with degrees
+
+6. BEAM PROPERTIES EXTRACTION
+   - From edges: vertexA, vertexB (3D vectors)
+   - From parameters: width, thickness (mm)
+   - Calculated: length, volume, bevels, material
+   - Grouped by size
+
+7. BEAM INDEXING & LABELING
+   - Single letters A-Z for beams 0-25
+   - Double letters AA-AZ, BA-BZ for 26+
+   - Each drawing has index, measurements, angles, vertices
+
+================================================================================
+KEY CLASSES & LOCATIONS
+================================================================================
+
+Meter Class (Statistics Accumulator)
+  File: /src/acidome.js, Lines: 6405-6539
+  Accumulates measurements with operators (sum, min, max, range, swing)
+
+Product.Rib.Beam (Beam Definition)
+  File: /src/acidome.js, Lines: 5300-5707
+  Methods: getTails(), maxLength(), minLength(), meter(), materialName()
+
+Plotter (Canvas Drawing Engine)
+  File: /src/acidome.js, Lines: 5713-6100+
+  Methods: line(), textByLine(), circle(), text(), _plane()
+
+Plotter.Beam (Beam Drawings)
+  File: /src/acidome.js, Lines: 6162-6298
+  Methods: start(), tail(), end()
+
+Plotter.Triangle (Face Drawings)
+  File: /src/acidome.js, Lines: 6304-6395
+  Methods: triangle(), vertexes()
+
+================================================================================
+MEASUREMENT FLOW
+================================================================================
+
+getTails() -> Calculate bevel geometry at endpoints
+afterGetTails() -> Compute walker vectors
+unify() -> Categorize beam configuration
+maxLength() -> Sum midLength plus extensions
+meter() -> Format measurements
+Meter.push() -> Accumulate statistics
+Meter.reportText() -> Generate report
+
+MEASUREMENTS:
+- Base area (m2)
+- Total length (m)
+- Total volume (m3)
+- Beam length range (mm)
+- Angle between faces (degrees)
+
+================================================================================
+DRAWING ANNOTATIONS
+================================================================================
+
+ON BEAM DRAWING:
+- Bevel angles: degrees
+- Length measurements: mm
+- Vertex indices
+- Rib counts
+- Cutting plane angles
+
+ON FACE DRAWING:
+- Edge index (letters A, B, C)
+- Edge measurements in segments
+- Dihedral angle
+- Vertex markers and indices
+- Construction lines (dashed)
+
+================================================================================
+TYPESCRIPT MIGRATION STATUS
+================================================================================
+
+COMPLETED:
+✓ Beam interface definition
+✓ Edge extraction from Figure
+✓ Basic beam array generation
+✓ Length calculation
+✓ Connector generation
+
+NEEDS IMPLEMENTATION:
+- Tail calculations with bevels
+- Complete meter() function
+- Canvas drawing (Plotter classes)
+- Triangle/Face drawing
+- Material naming/grouping
+- Measurement accumulation
+- Length unification
+- Technical drawing annotations
+
+================================================================================
+FILES ANALYZED
+================================================================================
+
+Original: /src/acidome.js (336KB)
+- Meter class: 6405-6539
+- Product.Rib.Beam: 5300-5707
+- Plotter base: 5713-6100+
+- Plotter.Beam: 6162-6298
+- Plotter.Triangle: 6304-6395
+
+Migration: /src/core/Product.ts
+- Beam generation: lines 54-66
+- Connector generation: lines 68-84
+
+Types: /src/types/product.ts
+- Beam interface: lines 43-50
+- Connector interface: lines 55-60
+
+Math: /src/core/Metrics.ts
+- Vector3Class, distance(), angle()
+
+Geometry: /src/core/Figure.ts
+- Edge creation: lines 167-187
+
+================================================================================
+SEARCH COMPLETION: 100%
+================================================================================
+
+All requested information found and documented:
+
+✓ Drawing/rendering of individual beams/lines
+✓ Measurement calculations for each piece
+✓ Reference dimension obtention and display
+✓ Canvas drawing and rendering system
+✓ Meter class and drawing utilities
+✓ Beam property extraction
+✓ Beam indexing and labeling
+
+Sources analyzed: 5+ core files
+Lines reviewed: 2000+
+Documentation: 3 comprehensive documents
+Code snippets: 50+
+
