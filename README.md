@@ -38,21 +38,28 @@ This refactorization aims to:
 ```
 acidome-app/
 ├── public/
-│   └── index.html              # Entry HTML
+│   └── index.html                # Entry HTML
 ├── src/
-│   ├── types/                  # TypeScript type definitions
-│   ├── core/                   # Business logic (Metrics, Figure, Product)
-│   ├── ui/                     # Vue components & stores
-│   ├── utils/                  # Configuration, i18n, helpers
-│   ├── App.vue                 # Root component
-│   ├── main.ts                 # Entry point
-│   └── style.scss              # Global styles
-├── vite.config.ts              # Vite configuration
-├── tsconfig.json               # TypeScript configuration
-└── package.json                # Dependencies
+│   ├── types/                    # TypeScript type definitions
+│   ├── core/                     # Business logic (Metrics, Figure, Product)
+│   ├── api/                      # REST API (Express server)
+│   │   ├── server.ts             # Express server setup
+│   │   └── calculator.ts         # Main calculator orchestration
+│   ├── ui/                       # Vue components & stores
+│   ├── utils/                    # Configuration, i18n, helpers
+│   ├── App.vue                   # Root component
+│   ├── main.ts                   # Entry point
+│   └── style.scss                # Global styles
+├── vite.config.ts                # Vite configuration
+├── tsconfig.json                 # TypeScript configuration
+├── package.json                  # Dependencies
+├── API_DOCUMENTATION.md          # REST API reference
+└── README.md                     # This file
 ```
 
 ## 🚀 Quick Start
+
+### Frontend (Vue 3 + Vite)
 
 ```bash
 # Install dependencies
@@ -71,6 +78,23 @@ npm run test
 npm run lint
 npm run format
 ```
+
+### REST API (Express + TypeScript)
+
+```bash
+# Start API server (development)
+npm run api
+
+# Start API with auto-reload
+npm run api:dev
+
+# Build API for production
+npm run api:build
+```
+
+API will be available at `http://localhost:3000/api`
+
+See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for complete API reference.
 
 ## 📊 Refactoring Progress
 
